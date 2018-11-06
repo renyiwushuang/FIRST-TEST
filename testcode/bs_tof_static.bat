@@ -1,0 +1,1 @@
+python bs_tof_static.py COM4 50 100

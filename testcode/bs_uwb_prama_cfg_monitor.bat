@@ -1,0 +1,1 @@
+python bs_uwb_prama_cfg_monitor.py 006c

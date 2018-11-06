@@ -1,0 +1,1 @@
+python card_sucess_static_allbs.py 0071 0074
