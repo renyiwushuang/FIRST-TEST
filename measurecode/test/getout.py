@@ -45,7 +45,12 @@ while flag==0:
         
     else:
          flag = 1
-  
-        
+es = 0  
+if len(data)%2==0 :
+      for i in range(0,int(len(data)/2-1)):
+          s = data[2*i]-data[2*i+1]
+          es = s+es
+          print(s)
+          print(es)
 #print(len(data))    
  #print(getout)   
