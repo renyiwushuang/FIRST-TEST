@@ -24,6 +24,7 @@ while flag==0:
     
     mean = data.mean()
     std = data.std()
+    
     getout = []
     a = []
     
@@ -40,7 +41,7 @@ while flag==0:
         data = data.drop(b)      
         data = data.reset_index()
         data = data['测试值']
-        print(data)
+        
         
     else:
          flag = 1
