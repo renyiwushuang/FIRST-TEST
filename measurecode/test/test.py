@@ -10,9 +10,24 @@ import numpy
 
 
 
-fid = 'Penguin_Htag_v08.02_实验样板BOM_20181122.xlsx'
+fid = 'data.xlsx'
 df = pandas.read_excel(fid)
-df['Unnamed: 7']= 1
+#df['Unnamed: 7']= 1
 
-data = df.drop([0,1,2,3,4])
-data.groupby('Unnamed: 5').sum().plot(kind='bar')
+#data = df.drop([0,1,2,3,4])
+#data.groupby('Unnamed: 5').sum().plot(kind='bar')
+data = []
+data = df['测试值']
+mean = data.mean()
+std = data.std()
+getout = []
+for data in data:
+    a = abs(data-mean)
+    getout.append(a)
+print(len(getout))   
+if max(getout)>(mean+3*std):
+    b = getout.index(max(getout))
+    del getout[b]
+    print(1)
+print(len(getout))    
+ #print(getout)   
