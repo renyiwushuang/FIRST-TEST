@@ -1,0 +1,1 @@
+不能再spyder中运行wxpython 会冲突，要使用命令行
