@@ -10,7 +10,7 @@ import numpy
 
 
 
-fid = 'data.xlsx'
+fid = 'A05-P.xlsx'
 df = pandas.read_excel(fid)
 #df['Unnamed: 7']= 1
 
@@ -18,6 +18,9 @@ df = pandas.read_excel(fid)
 #data.groupby('Unnamed: 5').sum().plot(kind='bar')
 data = []
 data = df['测试值'].copy()
+data = data.dropna().reset_index()
+data = data['测试值']
+
 #data[0]=0
 flag = 0
 while flag==0:
@@ -45,7 +48,9 @@ while flag==0:
         
     else:
          flag = 1
-print(df['测试项'][1],'剔除坏值完成')        
+print(df['测试项'][1],'剔除坏值完成')   
+print(len(df['测试项']))
+print(len(data))  
 es = 0  
 if len(data)%2==0 :
       for i in range(0,int(len(data)/2-1)):
@@ -75,6 +80,6 @@ if abs(ab)-std*std*(len(data)-1)**0.5>0 :
     print('存在周期性系统误差')
 else:
     print('不存在周期性系统误差')
-      
+
 #print(len(data))    
- #print(getout)   
+#print(getout)   
