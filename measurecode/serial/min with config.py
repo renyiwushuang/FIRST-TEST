@@ -6,18 +6,25 @@ Created on Mon Feb 18 15:51:16 2019
 """
 import serial
 import visa
+from bs4 import BeautifulSoup
 
-visa_dll = 'c:/windows/system32/visa32.dll'
-tcp_addr = 'TCPIP::192.168.7.175::inst0::INSTR'
+
+
+f = open('serialconfig.html','r',encoding='utf-8')
+ff = f.read()
+soup = BeautifulSoup(ff,'lxml')
+
+visa_dll = soup.find('visa',id= 'visa32_dll_addr').value.get_text()
+tcp_addr = soup.find('visa',id= 'tcp_addr').value.get_text()
 rm = visa.ResourceManager(visa_dll)
 tcp_inst = rm.open_resource(tcp_addr)
 print(tcp_inst.query('*IDN?'))
 print(tcp_inst.query(':TRIGger:STATus?'))
 
 
-portx = 'COM3'
-bps = 460800
-waitTime = 1
+portx = soup.find('serial',id= 'port').value.get_text()
+bps = int(soup.find('serial',id= 'bps').value.get_text())
+waitTime =int(soup.find('serial',id= 'waittime').value.get_text())
 ser = serial.Serial(portx,bps,timeout = waitTime)
 flag = tcp_inst.query(':TRIGger:STATus?')
 while flag=='WAIT\n' :

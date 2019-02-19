@@ -1,0 +1,31 @@
+
+<root>  
+<FrameType name="PENGUIN_TEST_DATA 0x0022 "> <code>0x0022</code>   </FrameType>
+
+<CmdCode nam="读NV  0X01"> <code>0x01</code>   </CmdCode>
+<CmdCode name="写NV  0X03"> <code>0x03</code>   </CmdCode>
+<CmdCode name="建网  0X0B"> <code>0X0B</code>   </CmdCode>
+<CmdCode name="设置电流量程  0X17"> <code>0X17</code>   </CmdCode>
+<CmdCode name="休眠  0x29"> <code>0x29</code>   </CmdCode>
+<CmdCode name="ADC测电压  0X2F"> <code>0X2F</code>   </CmdCode>
+<CmdCode name="加密  0X35"> <code>0X35</code>   </CmdCode>
+<CmdCode name="电流读取  0X55"> <code>0X55</code>   </CmdCode>
+<CmdCode name="设置充电工装板模拟电池输出电压  0x57"> <code>0X57</code>   </CmdCode>
+<CmdCode name="外设测试  状态控制  0x80"> <code>0x80</code>   </CmdCode>
+<CmdCode name="电流测试  状态控制  0X9D"> <code>0X9D</code>   </CmdCode>
+<CmdCode name="电池电压测试  状态控制  0XA9"> <code>0XA9</code>   </CmdCode>
+<CmdCode name="IO扩展芯片config reg 状态  0XAB"> <code>0XAB</code>   </CmdCode>
+<CmdCode name="心率值读取  0XAC"> <code>0XAC</code>   </CmdCode>
+
+
+<FrmDir    name="PENGUIN_ADDR_MD_MB"> <code>0x0001</code>   </FrmDir>
+<FrmDir    name="PENGUIN_ADDR_SD_COMM"> <code>0x0002</code>   </FrmDir>
+<FrmDir    name="PENGUIN_ADDR_SD_SCH"> <code>0x0003</code>   </FrmDir>
+<FrmDir    name="PENGUIN_ADDR_SD_SYNC"> <code>0x0004</code>   </FrmDir>
+<FrmDir    name="PENGUIN_ADDR_SD_UWB"> <code>0x0005</code>   </FrmDir>
+<FrmDir    name="PENGUIN_ADDR_SD_WIFI"> <code>0x0006</code>   </FrmDir>
+<FrmDir    name="充电 测试母板 07"> <code>0x0007</code>   </FrmDir>
+<FrmDir    name="PENGUIN_ADDR_TAG_PRO"> <code>0x0008</code>   </FrmDir>
+<FrmDir    name="电流 测试母板 09"> <code>0x0009</code>   </FrmDir>
+
+</root>
