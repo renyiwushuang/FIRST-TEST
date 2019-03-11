@@ -42,5 +42,4 @@ dataf = (data-yorigin[0]-yreference[0])*yincrement[0]
 #data = tcp_inst.query_binary_values(':WAV:DATA?')
 plt.plot(dataf,linewidth=0.01)
 plt.savefig('D:/photo.svg')
-numpy.savetxt('D:/photo.out',dataf)
-numpy.savetxt('D:/photoraw.out',data)
+numpy.save('D:/photo.out',dataf)
