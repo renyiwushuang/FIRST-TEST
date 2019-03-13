@@ -13,7 +13,7 @@ import  time
 
 
 f = open('serialconfig.html','r',encoding='utf-8')
-
+ftxt = open('serialconfig.txt','w',encoding='utf-8')
 
 ff = f.read()
 
@@ -35,8 +35,13 @@ flag = tcp_inst.query(':TRIGger:STATus?')
 while flag=='WAIT\n' :
     s = ser.readline()
     print(s)
+    txt=str(s)
+    ftxt.write(txt)
+    ftxt.write('\n')
     flag = tcp_inst.query(':TRIGger:STATus?')
 
 print('Triged')
+f.close()
+ftxt.close()
 ser.close()
 time.sleep(10)

@@ -29,6 +29,7 @@ def NILspace(fre,where):
                     flag = 1
             if flag == 0 :
                 print('no fre match')
+            
                     
     return NIL
     
@@ -36,9 +37,10 @@ def NILspace(fre,where):
 def NILf(fre, where):
     if where =='办公室' :
         if fre == 2400 :
-            NILf = 14
-    
-    return NILf
+            NILf1 = 14
+    else:
+        NILf1=0
+    return NILf1
     
 def NLspaceData():
     return [('居民楼',((1900,28),(2400,28),(5200,28))),
@@ -50,9 +52,9 @@ def NLspaceData():
 
 
    
-fre = 2400
+fre = 3500
 where = '办公室'
-d = 40.0
+d = 20.0
 floor = 0
 NILf =  NILf(fre,where)
 NILspace = NILspace(fre,where)
