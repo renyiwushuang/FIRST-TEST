@@ -38,6 +38,37 @@ def penetration_depletion_p(*arg) :
     u0 = arg[3]
     er = arg[4]
     return math.sqrt(2*er*(u0+Vr)/(constant.q*NA(1+NA/ND)))
+    
+def depletion_capactance(*arg) :
+    '''
+    本函数计算势垒电容
+    u0 是内建电压    单位V
+    VD 是外加电压     单位V
+    NA 是 n型掺杂浓度 单位 atoms/cm3
+    ND 是 n型掺杂浓度 单位 atoms/cm3
+    er 是介电常数
+    A 是横截面积     单位 cm2
+    '''
+    NA = arg[0]
+    ND = arg[1]
+    VD = arg[2]
+    u0 = arg[3]
+    er = arg[4]
+    A = arg[5]
+    return A*math.sqrt((constant.q*er*NA*ND)/(2*(NA+ND)*(u0-VD)))
+    
+def depletion_capactance2(*arg) :
+    '''
+    本函数计算势垒电容
+    u0 是内建电压    单位V
+    VD 是外加电压     单位V
+    Cj 是零偏的势垒电容 
+    '''
+    VD = arg[0]
+    u0 = arg[1]
+    Cj = arg[2]
+   
+    return Cj*math.sqrt(1-VD/u0)
 
 if __name__ == '__main__' :
     print(buildin_potential(1e15,1e16,1.5e10,300))
