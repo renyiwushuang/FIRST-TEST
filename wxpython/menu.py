@@ -11,9 +11,10 @@ Created on Mon Dec 31 01:03:43 2018
 
 @author: 21524
 """
-
+import pickle
 import wx
 from draw import SketchWindow
+import os
 
 
 class SketchFrame(wx.Frame):
@@ -23,6 +24,10 @@ class SketchFrame(wx.Frame):
         self.sketchwindow.Bind(wx.EVT_MOTION,self.OnSketchMotion)
         self.initStatusBar()
         self.createMenuBar()
+        self.CreateToolBar()
+        self.title = 'Sketch Frame'
+        self.filename = ''
+        
         
     def initStatusBar(self):
         self.statusbar = self.CreateStatusBar()
@@ -80,9 +85,38 @@ class SketchFrame(wx.Frame):
     def OnNew(self,event):
         pass
     def OnOpen(self,event):
-        pass
+        dlg = wx.FileDialog(self,'Open sketch file...',
+                            os.getcwd(),
+                            style= wx.FD_OPEN,
+                            wildcard= self.wildcard)
+        if dlg.ShowModal() == wx.ID_OK:
+            self.filename = dlg.GetPath()
+            self.ReadFile()
+            self.SetTitle(self.title+'--'+self.filename)
+        dlg.Destroy()
+        
+        
     def OnSave(self,event):
-        pass
+        if not self.filename:
+            self.OnSaveAs(event)
+        else:
+            self.SaveFile()
+            
+    def OnSaveAs(self,event):
+        dlg = wx.FileDialog(self,'Open sketch file...',
+                            os.getcwd(),
+                            style= wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT
+                            ,wildcard= self.wildcard)
+        if dlg.ShowModal() == wx.ID_OK:
+            filename = dlg.GetPath()
+            if not os.path.splitext(filename):
+                filename = filename + '.sketch'
+            self.filename = filename
+            self.SaveFile()
+            self.SetTitle(self.title+'--'+self.filename)
+        dlg.Destroy()
+            
+            
     def OnColor(self,event):
         menubar = self.GetMenuBar()
         itemId = event.GetId()
@@ -93,7 +127,25 @@ class SketchFrame(wx.Frame):
     def OnCloseWindow(self,event):
         self.Destroy()
         
-        
+    def SaveFile(self):
+        if self.filename:
+            data = self.sketchwindow.GetLinesData()
+            f = open(self.filename,'w')
+            pickle.dump(data,f)
+            f.close()
+            
+    def ReadFile(self):
+        if self.filename:
+            try:
+                f = open(self.filename,'r')
+                data = pickle.load(f)
+                f.close()
+                self.sketchwindow.SetLinesData(data)
+            except pickle.UnpicklingError :
+                wx.MessageBox('%s is not a sketch file'%self.filename,'oops',style=wx.OK|wx.ICON_EXCLAMATION)
+     
+    wildcard = 'Sketch file(*.sketch)|*.sketch|all files(*.*)| *.*'           
+                
     
 
 if __name__ == '__main__' :
