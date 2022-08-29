@@ -2,6 +2,7 @@ import json
 
 
 class MysqlDatabase:
+
     def __init__(self):
         with open('users.json', mode='r', encoding='utf-8') as f:
             text = f.read()
@@ -16,7 +17,7 @@ class MysqlDatabase:
                     return False, '登陆失败，密码错误'
             else:
                 return False, '登陆失败，账户不存在'
-        
+
 
 db = MysqlDatabase()
 if __name__ == '__main__':

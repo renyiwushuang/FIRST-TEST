@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Jan 20 21:49:20 2020
 
-@author: 21524
-"""
 
 import speech_recognition as sr
 file = '1.wav'
