@@ -1,7 +1,7 @@
 import socket
-import math
+#import math
 import time
-import string
+#import string
 import numpy as np
 
 
@@ -54,7 +54,7 @@ def cmd_send(send):
             break
         time.sleep(0.05)
 
-
+################################ CONFIG initial ###########################
 def config_init():
 
     cmd_send('CONF:BLU:SIGN:OPM RFT')
@@ -267,7 +267,7 @@ class class_per_acc:
     Rx_2M = np.matrix(np.zeros(40).reshape(40, 1))
     Rx_S2 = np.matrix(np.zeros(40).reshape(40, 1))
     Rx_S8 = np.matrix(np.zeros(40).reshape(40, 1))
-    pass
+
 
 
 if __name__ == "__main__":
