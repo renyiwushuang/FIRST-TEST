@@ -1,0 +1,45 @@
+$date
+	Wed Jun 28 09:19:15 2023
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module gates7_structural_test $end
+$var wire 1 ! f_xor $end
+$var wire 1 " f_xnor $end
+$var wire 1 # f_or $end
+$var wire 1 $ f_nor $end
+$var wire 1 % f_nand $end
+$var wire 1 & f_and $end
+$var reg 1 ' a $end
+$var reg 1 ( b $end
+$scope module g7 $end
+$var wire 1 ' a $end
+$var wire 1 ( b $end
+$var wire 1 & f_and $end
+$var wire 1 % f_nand $end
+$var wire 1 $ f_nor $end
+$var wire 1 # f_or $end
+$var wire 1 " f_xnor $end
+$var wire 1 ! f_xor $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+0(
+0'
+0&
+1%
+1$
+0#
+1"
+0!
+$end
+#1

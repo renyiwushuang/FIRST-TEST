@@ -1,0 +1,122 @@
+$date
+	Wed Jun 28 23:30:18 2023
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module decoder3e_test $end
+$var wire 8 ! e [7:0] $end
+$var reg 1 " ena $end
+$var reg 3 # n [2:0] $end
+$var integer 32 $ i [31:0] $end
+$scope module dec3e $end
+$var wire 1 " ena $end
+$var wire 3 % n [2:0] $end
+$var reg 8 & e [7:0] $end
+$upscope $end
+$upscope $end
+$scope module mux2x32 $end
+$var wire 32 ' a0 [31:0] $end
+$var wire 32 ( a1 [31:0] $end
+$var wire 1 ) s $end
+$var wire 22 * y [21:0] $end
+$upscope $end
+$scope module mux4x32 $end
+$var wire 32 + a0 [31:0] $end
+$var wire 32 , a1 [31:0] $end
+$var wire 32 - a2 [31:0] $end
+$var wire 32 . a3 [31:0] $end
+$var wire 2 / s [1:0] $end
+$var wire 32 0 y [31:0] $end
+$scope function select $end
+$var reg 32 1 a0 [31:0] $end
+$var reg 32 2 a1 [31:0] $end
+$var reg 32 3 a2 [31:0] $end
+$var reg 32 4 a3 [31:0] $end
+$var reg 2 5 s [1:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+bz 5
+bz 4
+bz 3
+bz 2
+bz 1
+bx 0
+bz /
+bz .
+bz -
+bz ,
+bz +
+bz *
+z)
+bz (
+bz '
+b1 &
+b0 %
+b1 $
+b0 #
+1"
+b1 !
+$end
+#1
+b10 !
+b10 &
+b10 $
+b1 #
+b1 %
+#2
+b100 !
+b100 &
+b11 $
+b10 #
+b10 %
+#3
+b1000 !
+b1000 &
+b100 $
+b11 #
+b11 %
+#4
+b10000 !
+b10000 &
+b101 $
+b100 #
+b100 %
+#5
+b100000 !
+b100000 &
+b110 $
+b101 #
+b101 %
+#6
+b1000000 !
+b1000000 &
+b111 $
+b110 #
+b110 %
+#7
+b10000000 !
+b10000000 &
+b1000 $
+b111 #
+b111 %
+#8
+b0 !
+b0 &
+0"
+#9
+b1 !
+b1 &
+b0 #
+b0 %
+1"
+#10
