@@ -1,0 +1,32 @@
+<RCC>
+    <qresource prefix="/new/prefix1">
+        <file>mxdico.ico</file>
+    </qresource>
+    <qresource prefix="/new/prefix2">
+        <file>filenew.png</file>
+        <file>fileopen.png</file>
+    </qresource>
+    <qresource prefix="/new/prefix4">
+        <file>run_start.png</file>
+        <file>run_stop.png</file>
+        <file>run_pause.png</file>
+    </qresource>
+    <qresource prefix="/new/prefix5">
+        <file>help_guide.png</file>
+        <file>help-about.png</file>
+        <file>help-faq.png</file>
+    </qresource>
+    <qresource prefix="/new/prefix6">
+        <file>test_cofiger.png</file>
+        <file>go-home.png</file>
+        <file>test_manager.png</file>
+        <file>slider_handle_g.png</file>
+        <file>slider_handle_r.png</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>alarm.wav</file>
+    </qresource>
+    <qresource prefix="/new/prefix3">
+        <file>Htol_Test_Tool_User_Guide.chm</file>
+    </qresource>
+</RCC>

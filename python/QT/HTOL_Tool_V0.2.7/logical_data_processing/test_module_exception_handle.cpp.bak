@@ -1,0 +1,352 @@
+#include "test_module_exception_handle.h"
+#include "device_processing/send_email.h"
+
+#include <QMessageBox>
+#include <QDebug>
+#include <QSettings>
+
+#include <DbgHelp.h>
+#include <QDir>
+#include <QTimer>
+#include <QProcess>
+#include <QDateTime>
+#include <QAbstractButton>
+#include <QSound>
+#include <QSystemSemaphore>
+
+QMessageBox *p_msgb = nullptr;
+
+CSendEmailDevice *p_send_mail_device = nullptr;
+
+QSound *p_sound = nullptr;
+QTimer *timer = nullptr;
+
+bool g_isrestart = true;
+bool g_isalarm = true;
+
+QString g_senderEmailUserName = {};
+QString g_senderEmailPassword = {};
+QString g_receiverEmailUserName = {};
+
+TestModuleExceptionHandle::TestModuleExceptionHandle(QWidget *parent) : QWidget(parent)
+{
+    initEmailCfg();
+    p_send_mail_device = new CSendEmailDevice("smtp.qiye.aliyun.com",g_senderEmailUserName,g_senderEmailPassword);
+    //p_send_mail_device = new CSendEmailDevice("smtp.163.com","gangguo.xiao@maxscend.com","1997520aA.");
+    p_sound = new QSound(":/alarm.wav");
+    initSystemMessageBox();
+    initTestMessageBox();
+}
+
+TestModuleExceptionHandle::~TestModuleExceptionHandle()
+{
+    delete p_send_mail_device;
+}
+
+void TestModuleExceptionHandle::initEmailCfg()
+{
+    QString current_path = QCoreApplication::applicationDirPath();
+    current_path = current_path + "\\cfg.ini";
+    if(QFile::exists(current_path)){
+        qDebug() << "读取配置文件存在！" << "\r\n";
+        QSettings *settings = new QSettings(current_path, QSettings::IniFormat);
+        settings->beginGroup(QString("EMAIL_CFG"));
+        g_senderEmailUserName = settings->value("SENDER_EMAIL_USER_NAME").toString();
+        g_senderEmailPassword = settings->value("SENDER_EMAIL_PASSWORD").toString();
+        g_receiverEmailUserName = settings->value("RECEIVER_EMAIL_USER_NAME").toString();
+        settings->endGroup();
+    } else{
+        //qDebug() << "读取配置文件不存在！" << "\r\n";
+    }
+    if(g_senderEmailUserName.isEmpty() || g_senderEmailPassword.isEmpty() || g_receiverEmailUserName.isEmpty())
+    {
+       // QMessageBox::warning(this, u8"提示", u8"请检查配置文件中邮箱配置！", u8"确定");
+    }
+}
+
+
+void TestModuleExceptionHandle::initTestMessageBox()
+{
+    this->msgbTestException = new QMessageBox();
+    this->msgbTestException->setWindowFlag(Qt::WindowStaysOnTopHint);
+    this->msgbTestException->setIcon(QMessageBox::Critical);
+    this->msgbTestException->setWindowTitle("测试异常");
+    this->msgbTestException->setText("测试异常，窗口将在5s后关闭\r\n");
+
+    this->msgbTestException->addButton("关闭警报", QMessageBox::RejectRole);
+
+    QObject::connect(this->msgbTestException, &QMessageBox::buttonClicked, this, [=](){
+        timer->stop();
+        this->msgbTestException->setText("测试异常，窗口将在5s后关闭\r\n");
+        this->msgbTestException->close();
+        p_sound->stop();
+    });
+}
+
+void TestModuleExceptionHandle::showTestMessageBox(int time_s)
+{
+    timer = new QTimer();
+    int lastTime = time_s;
+    this->msgbTestException->show();
+    timer->setInterval(1000);
+    QObject::connect(timer, &QTimer::timeout, this, [this, &lastTime](){
+        lastTime--;
+        if(lastTime < 0)
+        {
+            timer->stop();
+            this->msgbTestException->setText("测试异常，窗口将在5s后关闭\r\n");
+            this->msgbTestException->close();
+            p_sound->stop();
+            return;
+        }
+        QString info = QString("测试异常，窗口将在%1s后关闭\r\n ").arg(lastTime);
+        this->msgbTestException->setText(info);
+    });
+    timer->start();
+    this->msgbTestException->exec();
+}
+
+void TestModuleExceptionHandle::checkIsAutoReboot()
+{
+    QString current_path = QCoreApplication::applicationDirPath();
+    current_path = current_path + "\\cfg.ini";
+    QDir dir("../dumps");
+    bool is_reboot = false;
+    if(QFile::exists(current_path)){
+        qDebug() << "读取配置文件存在！" << "\r\n";
+        QSettings *settings = new QSettings(current_path, QSettings::IniFormat);
+        settings->beginGroup(QString("SYS_CFG"));
+        is_reboot = settings->value("IS_SYSTEM_RESTART").toBool();
+        settings->endGroup();
+        qDebug() << "系统是否重启：" << is_reboot;
+    } else{
+        qDebug() << "读取配置文件不存在！" << "\r\n";
+    }
+    if(is_reboot || dir.exists())  // 异常标志位和dump文件双重检查
+    {
+        p_sound->setLoops(QSound::Infinite); //1.声音提示10s
+        p_sound->play();
+        QTimer *sound_timer = new QTimer();
+        sound_timer->setInterval(10000);
+        sound_timer->start();
+        QObject::connect(sound_timer, &QTimer::timeout, [=](){p_sound->stop();sound_timer->stop();});
+
+
+        QString info = "系统异常，但已正常重启开始工作";
+        this->sendAlarmByEmial(info);  //2.邮件通知系统重启
+
+        if(QFile::exists(current_path)){
+            qDebug() << "读取配置文件存在！路径为：" << current_path << "\r\n";
+            QSettings *settings = new QSettings(current_path, QSettings::IniFormat);
+            settings->beginGroup(QString("SYS_CFG"));
+            settings->setValue(QString("IS_SYSTEM_RESTART"), QVariant(false));
+            settings->endGroup();
+            settings->sync();
+        } else{
+            qDebug() << "读取配置文件不存在！" << "\r\n";
+        }
+        qDebug() << "系统重启，异常标志位取消成功" << "\r\n";   //3.取消异常标志位
+
+        if(dir.exists()) //4.修改dump文件
+        {
+            QString oldName = dir.absolutePath();
+            qDebug() << oldName;
+            QString newName = oldName + QDateTime::currentDateTime().toString("HHmmss_zzz");
+            qDebug() << newName;
+            bool ok = dir.rename(oldName,newName);
+            qDebug() << ok;
+        }
+
+        emit siganal_systemReboot(); //5.触发自动测试
+    }
+}
+
+bool TestModuleExceptionHandle::sendAlarmBySound(int sound_time_s)
+{
+    p_sound->setLoops(QSound::Infinite);
+    p_sound->play();
+    this->showTestMessageBox(sound_time_s);
+    return true;
+}
+
+bool TestModuleExceptionHandle::sendAlarmByEmial(QString info)
+{
+    QString data_time = p_send_mail_device->timeStampMail();
+    QString theme = "[测试异常上报]" + data_time;
+    if(p_send_mail_device->send(g_receiverEmailUserName, theme, info)){
+        if(p_send_mail_device->slot_putSendLine()){
+            qDebug() << "邮件发送成功";
+        } else{
+            qDebug() << "邮件发送失败";
+            return false;
+        }
+    }
+    return true;
+}
+
+void TestModuleExceptionHandle::slot_systemExceptionHandle(enSystemExceptionHandleCfg_t system_exception_cfg)
+{
+    qDebug() << "slot_system_exception_handle :" << system_exception_cfg << "\r\n";
+
+
+    if(enSystemExceptionHandleCfg_t::SEND_SYSTEM_ALARM_AND_RESTART_SYSTEM_WITH_TEST == system_exception_cfg)
+    {
+        qDebug() << "SEND_SYSTEM_ALARM_AND_RESTART_SYSTEM_WITH_TEST" << "\r\n";
+
+        g_isrestart = true;
+        g_isalarm = true;
+    }
+
+    else if (enSystemExceptionHandleCfg_t::RESTART_SYSTEM_WITH_TEST_AND_NO_SEND_SYSTEM_ALARM == system_exception_cfg)
+    {
+        qDebug() << "RESTART_SYSTEM_WITH_TEST_AND_NO_SEND_SYSTEM_ALARM" << "\r\n";
+        g_isrestart = true;
+        g_isalarm = false;
+    }
+
+    else if (enSystemExceptionHandleCfg_t::SEND_SYSTEM_ALARM_AND_NO_RESTART_SYSTE == system_exception_cfg)
+    {
+        qDebug() << "SEND_SYSTEM_ALARM_AND_NO_RESTART_SYSTE" << "\r\n";
+        g_isrestart = false;
+        g_isalarm = true;
+    }
+}
+
+void rebootInfoWrite()
+{
+    QString current_path = QCoreApplication::applicationDirPath();
+    current_path = current_path + "/cfg.ini";
+
+    if(QFile::exists(current_path)){
+        qDebug() << "读取配置文件存在！路径为：" << current_path << "\r\n";
+        QSettings *settings = new QSettings(current_path, QSettings::IniFormat);
+        settings->beginGroup(QString("SYS_CFG"));
+        settings->setValue(QString("IS_SYSTEM_RESTART"), QVariant(true));
+        settings->endGroup();
+        settings->sync();
+    } else{
+        qDebug() << "读取配置文件不存在！" << "\r\n";
+    }
+    qDebug() << "系统异常重启标志位写入成功" << "\r\n";
+}
+
+void systemExceptionHandle(QString errCode)
+{
+    if(g_isalarm){
+        QString info = QString("未知原因崩溃,错误码：\r\n%1").arg("errCode");
+        QString data_time = p_send_mail_device->timeStampMail();
+        QString theme = "[系统异常上报]" + data_time;
+        if(p_send_mail_device->send(g_receiverEmailUserName, theme, info)){
+            if(p_send_mail_device->slot_putSendLine()){
+                qDebug() << "邮件发送成功";
+            } else{
+                qDebug() << "邮件发送失败";
+            }
+        }
+    } else{
+        qDebug() << "不产生警报";
+    }
+
+    if(g_isrestart){
+        rebootInfoWrite();
+        int lastTime = 5;
+        QTimer *timer = new QTimer();
+        timer->setInterval(1000);
+        QObject::connect(timer, &QTimer::timeout, [&lastTime, &errCode](){
+            lastTime--;
+            if(lastTime < 0){
+                p_msgb->close();
+                qApp->quit();
+                qDebug() << "start application:" << QProcess::startDetached(qApp->applicationFilePath(), QStringList());//重启
+                return;
+            }
+            QString info = QString("未知原因崩溃，程序将在%1s后重启\r\n errCode：%2").arg(lastTime).arg(errCode);
+            p_msgb->setText(info);
+        });
+        timer->start();
+        p_msgb->exec();
+    } else {
+        QString info = QString("未知原因崩溃，不自动重启，请选择操作类型\r\n").arg(errCode);
+        p_msgb->setText(info);
+        p_msgb->exec();
+    }
+}
+
+void TestModuleExceptionHandle::initSystemMessageBox()
+{
+    p_msgb = new QMessageBox();
+    p_msgb->setWindowFlag(Qt::WindowStaysOnTopHint);
+    p_msgb->setIcon(QMessageBox::Critical);
+    p_msgb->setWindowTitle("软件崩溃");
+    p_msgb->setText("未知原因崩溃");
+
+    QPushButton *rebootButton = nullptr;
+    QPushButton *rejectButton = nullptr;
+
+    rebootButton = p_msgb->addButton("重启", QMessageBox::AcceptRole);
+    rejectButton = p_msgb->addButton("退出", QMessageBox::RejectRole);
+
+
+    QObject::connect(p_msgb, &QMessageBox::buttonClicked, this, [=](){
+        if(p_msgb->clickedButton() == (QAbstractButton*)rebootButton)
+        {
+            qDebug() << "start application:" << QProcess::startDetached(qApp->applicationFilePath(), QStringList());//重启
+            qApp->quit();
+        }
+
+        else if(p_msgb->clickedButton() == (QAbstractButton*)rejectButton)
+        {
+            qApp->quit();
+        }
+        p_msgb->close();
+    });
+}
+
+//程式异常捕获
+long __stdcall errCallback(_EXCEPTION_POINTERS*  pException)
+{
+/******这里最好还是加个防止反复进入该回调函数的机制。防止在倒计时的过程中，程序那边又再次触发异常。*********/
+    // 信号量的意义，把操作共享内存的代码锁住。因为有可能同时启动, 防止并发
+    QSystemSemaphore sema("my exception", 1, QSystemSemaphore::Open);
+    sema.acquire();
+
+    QDir dir;
+    dir.mkdir("../dumps");
+    dir.cd("../dumps");
+
+    /*
+      ***保存数据代码***
+    */
+
+    QString fileName = dir.path() + "/" +
+                       QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss.zzz") + ".dmp";
+
+    LPCWSTR pFileName = (LPCWSTR)fileName.unicode();
+
+    //创建 Dump 文件
+    HANDLE hDumpFile = CreateFile(pFileName,
+                                  GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    qDebug() << "create dumpFile:" << hDumpFile << INVALID_HANDLE_VALUE;
+    if(hDumpFile != INVALID_HANDLE_VALUE)
+    {
+        //Dump信息
+        MINIDUMP_EXCEPTION_INFORMATION dumpInfo;
+        dumpInfo.ExceptionPointers = pException;
+        dumpInfo.ThreadId = GetCurrentThreadId();
+        dumpInfo.ClientPointers = TRUE;
+        //写入Dump文件内容
+        MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hDumpFile, MiniDumpNormal, &dumpInfo, NULL, NULL);
+    }
+
+    EXCEPTION_RECORD* record = pException->ExceptionRecord;
+    QString errCode(QString::number(record->ExceptionCode,16));
+
+
+    qDebug() << "main thread:" << qApp->thread() << QThread::currentThread();
+
+    //系统异常处理
+    systemExceptionHandle(errCode);
+
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+
